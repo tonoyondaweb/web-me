@@ -1,6 +1,7 @@
 ---
 interface Props {
 	as?: 'a' | 'button' | 'div' | 'span';
+	glow?: boolean;
 	href?: string;
 	target?: string;
 	rel?: string;
@@ -16,6 +17,7 @@ interface Props {
 
 const {
 	as = 'div',
+	glow = true,
 	href,
 	target,
 	rel,
@@ -33,9 +35,8 @@ const Tag = as as keyof JSX.IntrinsicElements;
 ---
 
 <Tag
-	class="glow-card"
-	data-glow-card
-	class:list={[className]}
+	class:list={[className, glow && 'glow-card']}
+	data-glow-card={glow ? '' : undefined}
 	href={href}
 	target={target}
 	rel={rel}

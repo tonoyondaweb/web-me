@@ -65,8 +65,8 @@
 }
 
 .glow-card {
-  --glow-mx: 0px;
-  --glow-my: 0px;
+  --glow-mx: -9999px;
+  --glow-my: -9999px;
   position: relative;
   display: inline-block;
   border-radius: 8px;
@@ -137,21 +137,17 @@
     linear-gradient(90deg, rgba(232, 224, 212, 0.08) 1px, transparent 1px);
   background-size: 48px 48px;
   mask-image: radial-gradient(
-    500px circle at var(--cursor-x, 50%) var(--cursor-y, 50%),
+    500px circle at var(--cursor-x, -9999px) var(--cursor-y, -9999px),
     rgba(0, 0, 0, 1) 0%,
     rgba(0, 0, 0, 0.6) 40%,
     transparent 70%
   );
   -webkit-mask-image: radial-gradient(
-    500px circle at var(--cursor-x, 50%) var(--cursor-y, 50%),
+    500px circle at var(--cursor-x, -9999px) var(--cursor-y, -9999px),
     rgba(0, 0, 0, 1) 0%,
     rgba(0, 0, 0, 0.6) 40%,
     transparent 70%
   );
-}
-
-@media (hover: none) and (pointer: coarse) {
-  .grid-reflection {
-    display: none !important;
-  }
+  transition: opacity 300ms ease-out;
+  opacity: 1;
 }

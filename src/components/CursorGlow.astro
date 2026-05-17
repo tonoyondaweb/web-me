@@ -8,33 +8,74 @@
 	const isTouchDevice =
 		window.matchMedia('(hover: none) and (pointer: coarse)').matches;
 
+	const glowCards = Array.from(document.querySelectorAll('[data-glow-card]'));
+
+	const updateGlowCards = (cx, cy) => {
+		for (let i = 0; i < glowCards.length; i++) {
+			const card = glowCards[i];
+			const rect = card.getBoundingClientRect();
+			const x = cx - rect.left;
+			const y = cy - rect.top;
+			card.style.setProperty('--glow-mx', `${x}px`);
+			card.style.setProperty('--glow-my', `${y}px`);
+		}
+	};
+
 	if (isTouchDevice) {
 		document.documentElement.style.cursor = '';
+
+		const gridReflection = document.querySelector('.grid-reflection');
+
+		document.addEventListener(
+			'touchmove',
+			(e) => {
+				const touch = e.touches[0];
+				if (touch) {
+					if (gridReflection) gridReflection.style.opacity = '1';
+					updateGlowCards(touch.clientX, touch.clientY);
+					document.documentElement.style.setProperty('--cursor-x', `${touch.clientX}px`);
+					document.documentElement.style.setProperty('--cursor-y', `${touch.clientY}px`);
+				}
+			},
+			{ passive: true }
+		);
+
+		document.addEventListener(
+			'touchend',
+			() => {
+				for (let i = 0; i < glowCards.length; i++) {
+					glowCards[i].style.setProperty('--glow-mx', '-9999px');
+					glowCards[i].style.setProperty('--glow-my', '-9999px');
+				}
+				document.documentElement.style.setProperty('--cursor-x', '-9999px');
+				document.documentElement.style.setProperty('--cursor-y', '-9999px');
+				if (gridReflection) gridReflection.style.opacity = '0';
+			},
+			{ passive: true }
+		);
 	} else {
 		document.documentElement.style.cursor = 'none';
 
 		const dot = document.querySelector('.cursor-dot');
 		const halo = document.querySelector('.cursor-halo');
+		const gridReflection = document.querySelector('.grid-reflection');
 
 		let mouseX = window.innerWidth / 2;
 		let mouseY = window.innerHeight / 2;
 		let dotX = mouseX;
 		let dotY = mouseY;
 		let needsUpdate = true;
+		let isInWindow = true;
+		let isHoveringInteractive = false;
 
 		const interactiveSelector = 'a, button, [role="button"], input, textarea, select';
 
-		const glowCards = Array.from(document.querySelectorAll('[data-glow-card]'));
-
-		const updateGlowCards = (cx, cy) => {
-			for (let i = 0; i < glowCards.length; i++) {
-				const card = glowCards[i];
-				const rect = card.getBoundingClientRect();
-				const x = cx - rect.left;
-				const y = cy - rect.top;
-				card.style.setProperty('--glow-mx', `${x}px`);
-				card.style.setProperty('--glow-my', `${y}px`);
-			}
+		const updateVisibility = () => {
+			const visible = isInWindow && !isHoveringInteractive;
+			dot.style.opacity = visible ? '1' : '0';
+			halo.style.opacity = visible ? '1' : '0';
+			if (gridReflection) gridReflection.style.opacity = isInWindow ? '1' : '0';
+			document.documentElement.style.cursor = visible ? 'none' : '';
 		};
 
 		const animate = () => {
@@ -72,9 +113,9 @@
 			(e) => {
 				const target = e.target.closest(interactiveSelector);
 				if (target) {
+					isHoveringInteractive = true;
 					target.classList.add('cursor-hover');
-					dot.style.opacity = '0';
-					halo.style.opacity = '0';
+					updateVisibility();
 				}
 			},
 			true
@@ -85,13 +126,33 @@
 			(e) => {
 				const target = e.target.closest(interactiveSelector);
 				if (target) {
+					isHoveringInteractive = false;
 					target.classList.remove('cursor-hover');
-					dot.style.opacity = '1';
-					halo.style.opacity = '1';
+					updateVisibility();
 				}
 			},
 			true
 		);
+
+		window.addEventListener('blur', () => {
+			isInWindow = false;
+			updateVisibility();
+		});
+
+		window.addEventListener('focus', () => {
+			isInWindow = true;
+			updateVisibility();
+		});
+
+		document.documentElement.addEventListener('mouseleave', () => {
+			isInWindow = false;
+			updateVisibility();
+		});
+
+		document.documentElement.addEventListener('mouseenter', () => {
+			isInWindow = true;
+			updateVisibility();
+		});
 
 		requestAnimationFrame(animate);
 	}
@@ -128,7 +189,7 @@
 			rgba(212, 185, 155, 0.25) 50%,
 			transparent 70%
 		);
-		transition: opacity 150ms ease-out;
+		transition: opacity 200ms ease-out;
 		z-index: 10000;
 	}
 
@@ -142,7 +203,7 @@
 			rgba(212, 185, 155, 0.02) 40%,
 			transparent 70%
 		);
-		transition: opacity 150ms ease-out;
+		transition: opacity 200ms ease-out;
 		z-index: 9999;
 	}
 
