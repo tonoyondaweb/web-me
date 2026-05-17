@@ -1,0 +1,51 @@
+---
+interface Props {
+	as?: 'a' | 'button' | 'div' | 'span';
+	href?: string;
+	target?: string;
+	rel?: string;
+	type?: string;
+	title?: string;
+	ariaLabel?: string;
+	ariaHidden?: string;
+	role?: string;
+	tabindex?: string | number;
+	download?: string;
+	class?: string;
+}
+
+const {
+	as = 'div',
+	href,
+	target,
+	rel,
+	type,
+	title,
+	ariaLabel,
+	ariaHidden,
+	role,
+	tabindex,
+	download,
+	class: className = '',
+} = Astro.props;
+
+const Tag = as as keyof JSX.IntrinsicElements;
+---
+
+<Tag
+	class="glow-card"
+	data-glow-card
+	class:list={[className]}
+	href={href}
+	target={target}
+	rel={rel}
+	type={type}
+	title={title}
+	aria-label={ariaLabel}
+	aria-hidden={ariaHidden}
+	role={role}
+	tabindex={tabindex}
+	download={download}
+>
+	<slot />
+</Tag>

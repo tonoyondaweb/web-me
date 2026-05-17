@@ -63,3 +63,95 @@
 @utility glow-secondary-hover {
   box-shadow: 0 0 16px rgba(212, 185, 155, 0.3);
 }
+
+.glow-card {
+  --glow-mx: 0px;
+  --glow-my: 0px;
+  position: relative;
+  display: inline-block;
+  border-radius: 8px;
+  padding: 1px;
+  transition: transform 200ms ease-out;
+}
+
+.glow-card:hover {
+  transform: scale(1.04);
+}
+
+.glow-card::before,
+.glow-card::after {
+  content: '';
+  border-radius: 8px;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.glow-card::after {
+  background: radial-gradient(
+    400px circle at var(--glow-mx) var(--glow-my),
+    rgba(212, 185, 155, 0.6),
+    transparent 40%
+  );
+  z-index: 0;
+}
+
+.glow-card::before {
+  background: radial-gradient(
+    300px circle at var(--glow-mx) var(--glow-my),
+    rgba(212, 185, 155, 0.2),
+    transparent 40%
+  );
+  z-index: 2;
+}
+
+.glow-card > * {
+  position: relative;
+  z-index: 1;
+  border-radius: 7px;
+}
+
+.glow-card.cursor-hover::before {
+  background: radial-gradient(
+    300px circle at var(--glow-mx) var(--glow-my),
+    rgba(212, 185, 155, 0.25),
+    transparent 40%
+  );
+}
+
+.glow-card.cursor-hover::after {
+  background: radial-gradient(
+    400px circle at var(--glow-mx) var(--glow-my),
+    rgba(212, 185, 155, 0.6),
+    transparent 40%
+  );
+}
+
+.grid-reflection {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    linear-gradient(rgba(232, 224, 212, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232, 224, 212, 0.08) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(
+    500px circle at var(--cursor-x, 50%) var(--cursor-y, 50%),
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.6) 40%,
+    transparent 70%
+  );
+  -webkit-mask-image: radial-gradient(
+    500px circle at var(--cursor-x, 50%) var(--cursor-y, 50%),
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.6) 40%,
+    transparent 70%
+  );
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .grid-reflection {
+    display: none !important;
+  }
+}

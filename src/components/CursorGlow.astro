@@ -1,0 +1,155 @@
+---
+---
+
+<div class="cursor-dot"></div>
+<div class="cursor-halo"></div>
+
+<script>
+	const isTouchDevice =
+		window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+
+	if (isTouchDevice) {
+		document.documentElement.style.cursor = '';
+	} else {
+		document.documentElement.style.cursor = 'none';
+
+		const dot = document.querySelector('.cursor-dot');
+		const halo = document.querySelector('.cursor-halo');
+
+		let mouseX = window.innerWidth / 2;
+		let mouseY = window.innerHeight / 2;
+		let dotX = mouseX;
+		let dotY = mouseY;
+		let needsUpdate = true;
+
+		const interactiveSelector = 'a, button, [role="button"], input, textarea, select';
+
+		const glowCards = Array.from(document.querySelectorAll('[data-glow-card]'));
+
+		const updateGlowCards = (cx, cy) => {
+			for (let i = 0; i < glowCards.length; i++) {
+				const card = glowCards[i];
+				const rect = card.getBoundingClientRect();
+				const x = cx - rect.left;
+				const y = cy - rect.top;
+				card.style.setProperty('--glow-mx', `${x}px`);
+				card.style.setProperty('--glow-my', `${y}px`);
+			}
+		};
+
+		const animate = () => {
+			if (needsUpdate) {
+				const ease = 0.3;
+				dotX += (mouseX - dotX) * ease;
+				dotY += (mouseY - dotY) * ease;
+
+				dot.style.transform = `translate3d(${dotX - 16}px, ${dotY - 16}px, 0)`;
+				halo.style.transform = `translate3d(${dotX - 200}px, ${dotY - 200}px, 0)`;
+
+				document.documentElement.style.setProperty('--cursor-x', `${dotX}px`);
+				document.documentElement.style.setProperty('--cursor-y', `${dotY}px`);
+
+				updateGlowCards(dotX, dotY);
+
+				needsUpdate = false;
+			}
+
+			requestAnimationFrame(animate);
+		};
+
+		document.addEventListener(
+			'mousemove',
+			(e) => {
+				mouseX = e.clientX;
+				mouseY = e.clientY;
+				needsUpdate = true;
+			},
+			{ passive: true }
+		);
+
+		document.addEventListener(
+			'mouseover',
+			(e) => {
+				const target = e.target.closest(interactiveSelector);
+				if (target) {
+					target.classList.add('cursor-hover');
+					dot.style.opacity = '0';
+					halo.style.opacity = '0';
+				}
+			},
+			true
+		);
+
+		document.addEventListener(
+			'mouseout',
+			(e) => {
+				const target = e.target.closest(interactiveSelector);
+				if (target) {
+					target.classList.remove('cursor-hover');
+					dot.style.opacity = '1';
+					halo.style.opacity = '1';
+				}
+			},
+			true
+		);
+
+		requestAnimationFrame(animate);
+	}
+</script>
+
+<style is:global>
+	html,
+	html *,
+	a,
+	button,
+	[role="button"],
+	input,
+	textarea,
+	select {
+		cursor: none !important;
+	}
+
+	.cursor-dot,
+	.cursor-halo {
+		position: fixed;
+		top: 0;
+		left: 0;
+		pointer-events: none;
+		will-change: transform;
+	}
+
+	.cursor-dot {
+		width: 32px;
+		height: 32px;
+		border-radius: 50%;
+		background: radial-gradient(
+			circle,
+			rgba(212, 185, 155, 0.7) 0%,
+			rgba(212, 185, 155, 0.25) 50%,
+			transparent 70%
+		);
+		transition: opacity 150ms ease-out;
+		z-index: 10000;
+	}
+
+	.cursor-halo {
+		width: 400px;
+		height: 400px;
+		border-radius: 50%;
+		background: radial-gradient(
+			circle,
+			rgba(212, 185, 155, 0.06) 0%,
+			rgba(212, 185, 155, 0.02) 40%,
+			transparent 70%
+		);
+		transition: opacity 150ms ease-out;
+		z-index: 9999;
+	}
+
+	@media (hover: none) and (pointer: coarse) {
+		.cursor-dot,
+		.cursor-halo {
+			display: none !important;
+		}
+	}
+</style>
